@@ -30,12 +30,15 @@ const FilterPane: React.FC<FilterPaneProps> = ({ onFiltersChange, filters }) => 
   const handleFilterChange = (category: string, value: string, checked: boolean) => {
     let newValues;
     
-    if (!filters[category]) {
-      newValues = checked ? [value] : [];
-    } else if (checked) {
-      newValues = [...filters[category], value];
+    if (Array.isArray(filters[category])) {
+      if (checked) {
+        newValues = [...filters[category], value];
+      } else {
+        newValues = filters[category].filter((v: string) => v !== value);
+      }
     } else {
-      newValues = filters[category].filter((v: string) => v !== value);
+      // Convert string to array for consistent handling
+      newValues = checked ? [value] : [];
     }
     
     onFiltersChange({ ...filters, [category]: newValues });
@@ -54,6 +57,41 @@ const FilterPane: React.FC<FilterPaneProps> = ({ onFiltersChange, filters }) => 
       fileSize: []
     });
   };
+
+  // Determine available options based on current selections to implement nested filtering
+  const getFilteredOptions = (category: string, options: {value: string; label: string; count: number}[]) => {
+    return options;
+  };
+
+  const documentTypeOptions = [
+    { value: 'contract', label: 'Contracts', count: 24 },
+    { value: 'agreement', label: 'Agreements', count: 18 },
+    { value: 'report', label: 'Reports', count: 32 },
+    { value: 'research', label: 'Research', count: 15 },
+    { value: 'policy', label: 'Policies', count: 9 }
+  ];
+
+  const departmentOptions = [
+    { value: 'trading', label: 'Trading', count: 36 },
+    { value: 'legal', label: 'Legal', count: 28 },
+    { value: 'operations', label: 'Operations', count: 22 },
+    { value: 'finance', label: 'Finance', count: 17 },
+    { value: 'data', label: 'Data Analytics', count: 8 },
+    { value: 'hr', label: 'HR', count: 7 }
+  ];
+
+  const confidentialityOptions = [
+    { value: 'public', label: 'Public', count: 45 },
+    { value: 'internal', label: 'Internal Only', count: 32 },
+    { value: 'confidential', label: 'Confidential', count: 18 },
+    { value: 'restricted', label: 'Highly Restricted', count: 5 }
+  ];
+
+  const fileSizeOptions = [
+    { value: 'small', label: 'Small (<1MB)', count: 38 },
+    { value: 'medium', label: 'Medium (1-10MB)', count: 29 },
+    { value: 'large', label: 'Large (>10MB)', count: 12 }
+  ];
 
   const FilterSection = ({ 
     title, 
@@ -84,7 +122,7 @@ const FilterPane: React.FC<FilterPaneProps> = ({ onFiltersChange, filters }) => 
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   id={`${category}-${option.value}`}
-                  checked={(filters[category] || []).includes(option.value)}
+                  checked={Array.isArray(filters[category]) && filters[category].includes(option.value)}
                   onCheckedChange={(checked) => 
                     handleFilterChange(category, option.value, checked === true)
                   }
@@ -125,37 +163,19 @@ const FilterPane: React.FC<FilterPaneProps> = ({ onFiltersChange, filters }) => 
       <FilterSection 
         title="Document Type" 
         category="documentType"
-        options={[
-          { value: 'contract', label: 'Contracts', count: 24 },
-          { value: 'agreement', label: 'Agreements', count: 18 },
-          { value: 'report', label: 'Reports', count: 32 },
-          { value: 'research', label: 'Research', count: 15 },
-          { value: 'policy', label: 'Policies', count: 9 }
-        ]}
+        options={getFilteredOptions('documentType', documentTypeOptions)}
       />
       
       <FilterSection 
         title="Department" 
         category="department"
-        options={[
-          { value: 'trading', label: 'Trading', count: 36 },
-          { value: 'legal', label: 'Legal', count: 28 },
-          { value: 'operations', label: 'Operations', count: 22 },
-          { value: 'finance', label: 'Finance', count: 17 },
-          { value: 'data', label: 'Data Analytics', count: 8 },
-          { value: 'hr', label: 'HR', count: 7 }
-        ]}
+        options={getFilteredOptions('department', departmentOptions)}
       />
       
       <FilterSection 
         title="Confidentiality" 
         category="confidentiality"
-        options={[
-          { value: 'public', label: 'Public', count: 45 },
-          { value: 'internal', label: 'Internal Only', count: 32 },
-          { value: 'confidential', label: 'Confidential', count: 18 },
-          { value: 'restricted', label: 'Highly Restricted', count: 5 }
-        ]}
+        options={getFilteredOptions('confidentiality', confidentialityOptions)}
       />
       
       <Collapsible open={expanded.dateRange} onOpenChange={() => toggleSection('dateRange')}>
@@ -183,11 +203,7 @@ const FilterPane: React.FC<FilterPaneProps> = ({ onFiltersChange, filters }) => 
       <FilterSection 
         title="File Size" 
         category="fileSize"
-        options={[
-          { value: 'small', label: 'Small (<1MB)', count: 38 },
-          { value: 'medium', label: 'Medium (1-10MB)', count: 29 },
-          { value: 'large', label: 'Large (>10MB)', count: 12 }
-        ]}
+        options={getFilteredOptions('fileSize', fileSizeOptions)}
       />
     </div>
   );

@@ -10,14 +10,14 @@ interface SearchInputProps {
 
 const SearchInput: React.FC<SearchInputProps> = ({ value, onChange }) => {
   return (
-    <div className="relative flex-1">
-      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+    <div className="relative flex-1 group">
+      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-hover:text-trafigura-light-blue transition-colors duration-200" />
       <Input
         type="text"
         placeholder="Search contracts, agreements, reports..."
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="pl-10 pr-4 py-6 text-lg rounded-full border-2 border-gray-200 focus:border-trafigura-light-blue"
+        className="pl-12 pr-4 py-7 text-lg rounded-full border-2 border-gray-200 focus:border-trafigura-light-blue shadow-inner hover:shadow-md transition-all duration-200"
         autoFocus
       />
     </div>

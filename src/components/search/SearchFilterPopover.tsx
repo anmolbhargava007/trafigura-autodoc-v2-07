@@ -42,29 +42,32 @@ const SearchFilterPopover: React.FC<SearchFilterPopoverProps> = ({
           type="button" 
           variant="outline" 
           size="icon"
-          className="rounded-full h-12 w-12 border-2 border-gray-200"
+          className="rounded-full h-12 w-12 border-2 border-gray-200 hover:border-trafigura-light-blue hover:bg-trafigura-light-blue/10 transition-all duration-200"
         >
           <Sliders className="h-5 w-5" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80">
-        <div className="space-y-4">
-          <h3 className="font-medium">Advanced Filters</h3>
-          
+      <PopoverContent className="w-80 p-0 shadow-lg rounded-xl border-2 overflow-hidden">
+        <div className="bg-gradient-to-r from-trafigura-dark-blue to-trafigura-light-blue p-4 text-white">
+          <h3 className="font-medium text-lg">Advanced Filters</h3>
+          <p className="text-xs text-white/80">Refine your search results</p>
+        </div>
+        
+        <div className="p-4">
           <Tabs defaultValue="filters" className="w-full">
-            <TabsList className="grid grid-cols-2 mb-2">
+            <TabsList className="grid grid-cols-2 mb-4">
               <TabsTrigger value="filters">Basic Filters</TabsTrigger>
               <TabsTrigger value="advanced">Advanced</TabsTrigger>
             </TabsList>
             <TabsContent value="filters">
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="documentType">Document Type</Label>
                   <Select 
                     value={filters.documentType}
                     onValueChange={(value) => updateFilter('documentType', value)}
                   >
-                    <SelectTrigger id="documentType">
+                    <SelectTrigger id="documentType" className="rounded-lg">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -84,7 +87,7 @@ const SearchFilterPopover: React.FC<SearchFilterPopoverProps> = ({
                     value={filters.dateRange}
                     onValueChange={(value) => updateFilter('dateRange', value)}
                   >
-                    <SelectTrigger id="dateRange">
+                    <SelectTrigger id="dateRange" className="rounded-lg">
                       <SelectValue placeholder="Select range" />
                     </SelectTrigger>
                     <SelectContent>
@@ -103,7 +106,7 @@ const SearchFilterPopover: React.FC<SearchFilterPopoverProps> = ({
                     value={filters.department}
                     onValueChange={(value) => updateFilter('department', value)}
                   >
-                    <SelectTrigger id="department">
+                    <SelectTrigger id="department" className="rounded-lg">
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
                     <SelectContent>
@@ -118,7 +121,7 @@ const SearchFilterPopover: React.FC<SearchFilterPopoverProps> = ({
                   </Select>
                 </div>
                 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 py-2">
                   <Checkbox 
                     id="archived" 
                     checked={filters.includeArchived}
@@ -126,19 +129,19 @@ const SearchFilterPopover: React.FC<SearchFilterPopoverProps> = ({
                       updateFilter('includeArchived', checked === true)
                     }
                   />
-                  <Label htmlFor="archived">Include archived documents</Label>
+                  <Label htmlFor="archived" className="text-sm">Include archived documents</Label>
                 </div>
               </div>
             </TabsContent>
             <TabsContent value="advanced">
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="searchMode">Search Mode</Label>
                   <Select
                     value={searchMode}
                     onValueChange={setSearchMode}
                   >
-                    <SelectTrigger id="searchMode">
+                    <SelectTrigger id="searchMode" className="rounded-lg">
                       <SelectValue placeholder="Select search mode" />
                     </SelectTrigger>
                     <SelectContent>
@@ -152,7 +155,7 @@ const SearchFilterPopover: React.FC<SearchFilterPopoverProps> = ({
                 <div className="space-y-2">
                   <Label htmlFor="summary">Result Summary</Label>
                   <Select>
-                    <SelectTrigger id="summary">
+                    <SelectTrigger id="summary" className="rounded-lg">
                       <SelectValue placeholder="Summary options" />
                     </SelectTrigger>
                     <SelectContent>
@@ -164,13 +167,15 @@ const SearchFilterPopover: React.FC<SearchFilterPopoverProps> = ({
                   </Select>
                 </div>
                 
-                <Separator />
+                <Separator className="my-2" />
                 
-                <h4 className="text-sm font-medium">Example Search Queries:</h4>
-                <div className="text-xs space-y-1 text-muted-foreground">
-                  <p>- "copper contracts in Peru from last year"</p>
-                  <p>- "calculate total value in LNG agreements"</p>
-                  <p>- "environmental reports with compliance data"</p>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <h4 className="text-sm font-medium mb-2">Example Search Queries:</h4>
+                  <div className="text-xs space-y-2 text-muted-foreground">
+                    <p>- "copper contracts in Peru from last year"</p>
+                    <p>- "calculate total value in LNG agreements"</p>
+                    <p>- "environmental reports with compliance data"</p>
+                  </div>
                 </div>
               </div>
             </TabsContent>

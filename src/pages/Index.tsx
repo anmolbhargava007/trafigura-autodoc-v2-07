@@ -19,8 +19,8 @@ const Index = () => {
   const { toast } = useToast();
   
   const [filters, setFilters] = useState({
-    documentType: '',  // Changed from [] to '' to match the API expectation
-    department: '',    // Changed from [] to '' to match the API expectation
+    documentType: [],  // Changed to array for multi-select functionality
+    department: [],    // Changed to array for multi-select functionality
     confidentiality: [],
     fileSize: [],
     dateRange: { from: undefined, to: undefined } as DateRange
@@ -35,9 +35,13 @@ const Index = () => {
       // Combine sidebar filters with search bar filters
       const combinedFilters = {
         ...filters,
-        ...searchFilters,
-        documentType: searchFilters.documentType || filters.documentType,
-        department: searchFilters.department || filters.department
+        documentType: searchFilters.documentType !== 'all' 
+          ? [searchFilters.documentType] 
+          : filters.documentType,
+        department: searchFilters.department !== 'all'
+          ? [searchFilters.department]
+          : filters.department,
+        includeArchived: searchFilters.includeArchived
       };
       
       console.log('Combined filters:', combinedFilters);
@@ -119,7 +123,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-trafigura-gray font-poppins">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-trafigura-gray to-white font-poppins">
       <Header />
       
       <main className="flex-1 flex">
@@ -139,15 +143,17 @@ const Index = () => {
                 <img 
                   src="logo.png" 
                   alt="Trafigura" 
-                  className="h-10 mx-auto mb-6" 
+                  className="h-16 mx-auto mb-6 animate-fade-in" 
                 />
-                <p className="text-gray-600 max-w-md mx-auto">
+                <p className="text-gray-600 max-w-md mx-auto text-lg animate-fade-in">
                   Unified search across all Trafigura enterprise knowledge sources
                 </p>
               </div>
             )}
             
-            <SearchBar onSearch={handleSearch} />
+            <div className="w-full max-w-3xl mx-auto bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg animate-fade-in">
+              <SearchBar onSearch={handleSearch} />
+            </div>
             
             {(searchPerformed || loading) && (
               <Personas 

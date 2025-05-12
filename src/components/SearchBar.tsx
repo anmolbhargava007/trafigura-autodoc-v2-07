@@ -93,7 +93,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
             
             <Button 
               type="submit" 
-              className="bg-trafigura-dark-blue hover:bg-trafigura-dark-blue/90 text-white rounded-full px-8"
+              className="bg-gradient-to-r from-trafigura-dark-blue to-trafigura-light-blue hover:opacity-90 text-white rounded-full px-8 py-6 shadow-md hover:shadow-lg transition-all duration-200"
             >
               Search
             </Button>
