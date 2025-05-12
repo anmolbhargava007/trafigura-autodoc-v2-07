@@ -35,11 +35,13 @@ const Index = () => {
       // Combine sidebar filters with search bar filters
       const combinedFilters = {
         ...filters,
+        // Only override documentType if a specific one is selected in the search bar
         documentType: searchFilters.documentType !== 'all' 
-          ? [searchFilters.documentType] 
+          ? [...filters.documentType, searchFilters.documentType].filter((v, i, a) => a.indexOf(v) === i)
           : filters.documentType,
+        // Only override department if a specific one is selected in the search bar
         department: searchFilters.department !== 'all'
-          ? [searchFilters.department]
+          ? [...filters.department, searchFilters.department].filter((v, i, a) => a.indexOf(v) === i)
           : filters.department,
         includeArchived: searchFilters.includeArchived
       };
@@ -121,6 +123,27 @@ const Index = () => {
         });
     }
   };
+
+  // Function to perform initial search to populate results when the page loads
+  const performInitialSearch = async () => {
+    try {
+      setLoading(true);
+      // Perform a blank search to get all documents
+      const initialResults = await searchDocuments('', {}, 'all');
+      setResults(initialResults);
+      setSearchPerformed(true);
+      setShowFilters(true);
+    } catch (error) {
+      console.error('Initial search error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Run initial search on component mount
+  React.useEffect(() => {
+    performInitialSearch();
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-trafigura-gray to-white font-poppins">

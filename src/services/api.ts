@@ -204,10 +204,10 @@ export const searchDocuments = async (
     query,
     filters: {
       ...filters,
-      documentType: filters.documentType && filters.documentType !== 'all' ? [filters.documentType] : [],
-      department: filters.department && filters.department !== 'all' ? [filters.department] : [],
-      confidentiality: filters.confidentiality || [],
-      fileSize: filters.fileSize || [],
+      documentType: Array.isArray(filters.documentType) ? filters.documentType : [],
+      department: Array.isArray(filters.department) ? filters.department : [],
+      confidentiality: Array.isArray(filters.confidentiality) ? filters.confidentiality : [],
+      fileSize: Array.isArray(filters.fileSize) ? filters.fileSize : [],
       dateRange: filters.dateRange || { from: undefined, to: undefined }
     },
     persona
@@ -227,7 +227,23 @@ const performSearch = (options: SearchOptions): SearchResultItem[] => {
   
   console.log(`Starting search with ${results.length} items`);
   
-  // Apply keyword search with exact matching
+  // If query is empty and no filters are applied, return all results
+  const hasFilters = 
+    options.filters.documentType.length > 0 || 
+    options.filters.department.length > 0 ||
+    options.filters.confidentiality.length > 0 ||
+    options.filters.fileSize.length > 0 ||
+    options.filters.dateRange?.from || 
+    options.filters.dateRange?.to ||
+    options.persona !== 'all';
+  
+  // Return all results for empty searches with no filters
+  if (!options.query && !hasFilters) {
+    console.log('Empty query with no filters, returning all results');
+    return results;
+  }
+  
+  // Apply keyword search with exact matching if query exists
   if (options.query && options.query.trim() !== '') {
     results = performKeywordSearch(results, options.query);
     console.log(`After keyword search: ${results.length} results`);
