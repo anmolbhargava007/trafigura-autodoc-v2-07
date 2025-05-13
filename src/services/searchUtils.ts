@@ -2,7 +2,7 @@
 import { SearchResultItem } from '@/components/SearchResults';
 
 // Helper function to extract text content from a document for searching
-const getSearchableContent = (item: SearchResultItem): string => {
+export const getSearchableContent = (item: SearchResultItem): string => {
   const textParts: string[] = [
     item.title || '',
     item.author || '',
@@ -74,8 +74,8 @@ export const performKeywordSearch = (
   console.log(`Running keyword search with query: "${query}" on ${items.length} items`);
   
   if (!query || query.trim() === '') {
-    console.log('Empty query, returning all items');
-    return items;
+    console.log('Empty query, returning empty array');
+    return []; // Return empty array for empty query as per requirements
   }
 
   const normalizedQuery = query.trim().toLowerCase();
@@ -148,6 +148,10 @@ export const performKeywordSearch = (
   });
   
   console.log(`Found ${matchedItems.length} matches out of ${items.length} items`);
+  
+  if (matchedItems.length === 0) {
+    return []; // Return empty array if no matches
+  }
   
   // Calculate relevance scores for sorting
   const scoredItems = matchedItems.map(item => {

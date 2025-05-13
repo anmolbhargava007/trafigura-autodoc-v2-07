@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 interface SearchInputProps {
@@ -27,11 +27,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ value, onChange }) => {
           className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-trafigura-dark-blue p-1 rounded-full"
           aria-label="Clear search"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="15" y1="9" x2="9" y2="15" />
-            <line x1="9" y1="9" x2="15" y2="15" />
-          </svg>
+          <X className="h-5 w-5" />
         </button>
       )}
     </div>

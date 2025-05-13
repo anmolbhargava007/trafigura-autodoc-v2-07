@@ -51,6 +51,20 @@ export interface SearchResultItem {
   Calculated_Values?: {
     [key: string]: string;
   };
+  query?: string;
+  answer?: SearchResultItem[];
+  calculations?: Array<{
+    type: string;
+    value: string;
+    description: string;
+  }>;
+}
+
+interface SearchResultsProps {
+  results: SearchResultItem[];
+  loading: boolean;
+  searchPerformed: boolean;
+  query?: string;
 }
 
 const getDocumentIcon = (type: string) => {

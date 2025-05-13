@@ -77,7 +77,7 @@ const Index = () => {
     setCurrentPersona(persona);
     
     // If a search has already been performed, redo it with the new persona
-    if (searchPerformed) {
+    if (searchPerformed && searchQuery) {
       // Redoing the search with current query and updated persona
       setLoading(true);
       
@@ -102,7 +102,7 @@ const Index = () => {
   const handleFiltersChange = (newFilters: any) => {
     setFilters(newFilters);
     
-    if (searchPerformed) {
+    if (searchPerformed && searchQuery) {
       // Redoing the search with current query and updated filters
       setLoading(true);
       
@@ -124,26 +124,7 @@ const Index = () => {
     }
   };
 
-  // Function to perform initial search to populate results when the page loads
-  const performInitialSearch = async () => {
-    try {
-      setLoading(true);
-      // Perform a blank search to get all documents
-      const initialResults = await searchDocuments('', {}, 'all');
-      setResults(initialResults);
-      setSearchPerformed(true);
-      setShowFilters(true);
-    } catch (error) {
-      console.error('Initial search error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Run initial search on component mount
-  React.useEffect(() => {
-    performInitialSearch();
-  }, []);
+  // No initial search - only search when the user initiates it
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-trafigura-gray to-white font-poppins">
