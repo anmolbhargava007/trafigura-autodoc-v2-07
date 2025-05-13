@@ -121,7 +121,7 @@ export const performKeywordSearch = (
     
     // For document type searches, check the type field specifically
     if (isDocumentTypeSearch) {
-      const itemType = item.type || 
+      const itemType = item.type?.toLowerCase() || 
         (item.content && item.content[0]?.Document_Details?.Type?.toLowerCase());
       
       if (itemType && documentTypes.some(type => 
@@ -178,7 +178,7 @@ export const performKeywordSearch = (
     
     // Score based on document type match
     if (isDocumentTypeSearch) {
-      const itemType = item.type || 
+      const itemType = item.type?.toLowerCase() || 
         (item.content && item.content[0]?.Document_Details?.Type?.toLowerCase());
         
       if (itemType && documentTypes.some(type => 

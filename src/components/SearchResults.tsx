@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   File, 
@@ -114,6 +113,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         const link = document.createElement('a');
         link.href = pdfUrl;
         link.download = item.pdf_file;
+        link.setAttribute('download', item.pdf_file); // Force download attribute
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

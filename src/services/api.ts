@@ -626,9 +626,12 @@ const mockResults = [
 const findDocumentsByExactQuery = (query: string): SearchResultItem[] => {
   console.log(`Looking for exact query match: "${query}" in mock data`);
 
-  // Find an exact query match
+  // Convert query to lowercase for case-insensitive matching
+  const normalizedQuery = query.toLowerCase();
+
+  // Find an exact query match (case-insensitive)
   const exactQueryMatch = mockResults.find(
-    (item) => item.query.toLowerCase() === query.toLowerCase()
+    (item) => item.query.toLowerCase() === normalizedQuery
   );
 
   if (exactQueryMatch) {
