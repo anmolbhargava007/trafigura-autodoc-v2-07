@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   File, 
@@ -109,20 +110,39 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         // Get the PDF URL from the api service
         const pdfUrl = getPdfUrlByFilename(item.pdf_file);
         
-        // Create a link element to trigger the download
-        const link = document.createElement('a');
-        link.href = pdfUrl;
-        link.download = item.pdf_file;
-        link.setAttribute('download', item.pdf_file); // Force download attribute
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        toast({
-          title: "Download started",
-          description: `Downloading ${item.title}`,
-          duration: 3000,
-        });
+        // Create a blob from the PDF URL and download it
+        fetch(pdfUrl)
+          .then(response => response.blob())
+          .then(blob => {
+            // Create a blob URL for the file
+            const blobUrl = window.URL.createObjectURL(blob);
+            
+            // Create a link element to trigger the download
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = item.pdf_file;
+            document.body.appendChild(link);
+            link.click();
+            
+            // Clean up
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+            
+            toast({
+              title: "Download started",
+              description: `Downloading ${item.title}`,
+              duration: 3000,
+            });
+          })
+          .catch(error => {
+            console.error("Download error:", error);
+            toast({
+              title: "Download failed",
+              description: "Could not download the document. Please try again.",
+              variant: "destructive",
+              duration: 3000,
+            });
+          });
       } catch (error) {
         toast({
           title: "Download failed",
