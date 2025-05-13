@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   File, 
@@ -17,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
+import { getPdfUrlByFilename } from '@/services/api';
 
 export interface SearchResultItem {
   id: string;
@@ -103,29 +105,62 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   };
 
   const handleDownload = (item: SearchResultItem) => {
-    const fileUrl = item.pdfUrl || (item.pdf_file ? `/documents/${item.pdf_file}` : null);
-    if (fileUrl) {
-      // In a real app, this would download the actual file
-      // For demo purposes, we'll just show a toast notification
+    if (item.pdf_file) {
+      try {
+        // Get the PDF URL from the api service
+        const pdfUrl = getPdfUrlByFilename(item.pdf_file);
+        
+        // Create a link element to trigger the download
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.download = item.pdf_file;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast({
+          title: "Download started",
+          description: `Downloading ${item.title}`,
+          duration: 3000,
+        });
+      } catch (error) {
+        toast({
+          title: "Download failed",
+          description: "Could not download the document. The file may not exist.",
+          variant: "destructive",
+          duration: 3000,
+        });
+      }
+    } else {
       toast({
-        title: "Download started",
-        description: `Downloading ${item.title}`,
+        title: "File not available",
+        description: "No downloadable file is associated with this document.",
+        variant: "destructive",
         duration: 3000,
       });
-      
-      // Simulate file download by opening in a new tab
-      window.open(fileUrl, '_blank');
     }
   };
 
   const handleOpenDocument = (item: SearchResultItem) => {
-    const fileUrl = item.pdfUrl || (item.pdf_file ? `/documents/${item.pdf_file}` : null);
-    if (fileUrl) {
-      window.open(fileUrl, '_blank');
+    if (item.pdf_file) {
+      try {
+        // Get the PDF URL from the api service
+        const pdfUrl = getPdfUrlByFilename(item.pdf_file);
+        
+        // Open the PDF in a new tab
+        window.open(pdfUrl, '_blank');
+      } catch (error) {
+        toast({
+          title: "Document unavailable",
+          description: "This document cannot be viewed at this time. The file may not exist.",
+          variant: "destructive",
+          duration: 3000,
+        });
+      }
     } else {
       toast({
         title: "Document unavailable",
-        description: "This document cannot be viewed at this time.",
+        description: "No viewable document is associated with this entry.",
         variant: "destructive",
         duration: 3000,
       });

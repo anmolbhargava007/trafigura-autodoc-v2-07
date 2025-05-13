@@ -11,6 +11,41 @@ import Trafigura_VR_VR22289 from '../../public/pdf/Trafigura VR#22289 10-20-23.p
 import Trafigura_VR_VR22260 from '../../public/pdf/Trafigura VR#VR22260 10-20-23.pdf'
 import oil_contract from '../../public/pdf/oil_contract.pdf'
 
+// Create a mapping of file names to their imported references
+const pdfMap: Record<string, string> = {
+  "budget_plan_2025.pdf": budget_plan_2025,
+  "CHBSL3716644.pdf": CHBSL3716644,
+  "DOC_MV23FW007656RRO_1_I8232012170.pdf": DOC_MV23FW007656RRO_1_I8232012170,
+  "DOC_MV23FW008231RRO_1_I8232012171.pdf": DOC_MV23FW008231RRO_1_I8232012171,
+  "Invoice_INV178629_1697739314386.pdf": Invoice_INV178629_1697739314386,
+  "Invoice_INV178631_1697739461140.pdf": Invoice_INV178631_1697739461140,
+  "Trafigura VR#22289 10-20-23.pdf": Trafigura_VR_VR22289,
+  "Trafigura VR#VR22260 10-20-23.pdf": Trafigura_VR_VR22260,
+  "oil_contract.pdf": oil_contract
+};
+
+// Function to get PDF URL by filename
+export const getPdfUrlByFilename = (filename: string): string => {
+  // First try exact match
+  if (pdfMap[filename]) {
+    return pdfMap[filename];
+  }
+
+  // If no exact match, try to find a partial match
+  // This helps with PDFs that might have slightly different filenames
+  const keys = Object.keys(pdfMap);
+  const matchingKey = keys.find(key => 
+    key.includes(filename) || filename.includes(key)
+  );
+
+  if (matchingKey) {
+    return pdfMap[matchingKey];
+  }
+
+  // If no match is found, throw an error
+  throw new Error(`PDF file "${filename}" not found`);
+};
+
 const mockResults = [
   {
     query: "contracts between traf and msc",
