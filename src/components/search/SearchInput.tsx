@@ -1,7 +1,6 @@
-
-import React from 'react';
-import { Search, X } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import React from "react";
+import { Search, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface SearchInputProps {
   value: string;
@@ -22,8 +21,9 @@ const SearchInput: React.FC<SearchInputProps> = ({ value, onChange }) => {
         autoComplete="off"
       />
       {value && (
-        <button 
-          onClick={() => onChange('')}
+        <button
+          type="button"
+          onClick={() => onChange("")}
           className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-trafigura-dark-blue p-1 rounded-full"
           aria-label="Clear search"
         >

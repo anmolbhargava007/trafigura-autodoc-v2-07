@@ -1,635 +1,46 @@
 import { SearchResultItem } from "@/components/SearchResults";
 import { DateRange } from "react-day-picker";
 import { performKeywordSearch } from "./searchUtils";
-import budget_plan_2025 from '../../public/pdf/budget_plan_2025.pdf'
-import CHBSL3716644 from '../../public/pdf/CHBSL3716644.pdf'
-import DOC_MV23FW007656RRO_1_I8232012170 from '../../public/pdf/DOC_MV23FW007656RRO_1_I8232012170.pdf'
-import DOC_MV23FW008231RRO_1_I8232012171 from '../../public/pdf/DOC_MV23FW008231RRO_1_I8232012171.pdf'
-import Invoice_INV178629_1697739314386 from '../../public/pdf/Invoice_INV178629_1697739314386.pdf'
-import Invoice_INV178631_1697739461140 from '../../public/pdf/Invoice_INV178631_1697739461140.pdf'
-import Trafigura_VR_VR22289 from '../../public/pdf/Trafigura VR#22289 10-20-23.pdf'
-import Trafigura_VR_VR22260 from '../../public/pdf/Trafigura VR#VR22260 10-20-23.pdf'
-import oil_contract from '../../public/pdf/oil_contract.pdf'
+import mockResults from "./demo.js"
 
 // Create a mapping of file names to their imported references
 const pdfMap: Record<string, string> = {
-  "budget_plan_2025.pdf": budget_plan_2025,
-  "CHBSL3716644.pdf": CHBSL3716644,
-  "DOC_MV23FW007656RRO_1_I8232012170.pdf": DOC_MV23FW007656RRO_1_I8232012170,
-  "DOC_MV23FW008231RRO_1_I8232012171.pdf": DOC_MV23FW008231RRO_1_I8232012171,
-  "Invoice_INV178629_1697739314386.pdf": Invoice_INV178629_1697739314386,
-  "Invoice_INV178631_1697739461140.pdf": Invoice_INV178631_1697739461140,
-  "Trafigura VR#22289 10-20-23.pdf": Trafigura_VR_VR22289,
-  "Trafigura VR#VR22260 10-20-23.pdf": Trafigura_VR_VR22260,
-  "oil_contract.pdf": oil_contract
+  "CHBSL3716644.pdf": "/pdf/CHBSL3716644.pdf",
+  "DOC_MV23FW007656RRO_1_I8232012170.pdf":
+    "/pdf/DOC_MV23FW007656RRO_1_I8232012170.pdf",
+  "DOC_MV23FW008231RRO_1_I8232012171.pdf":
+    "/pdf/DOC_MV23FW008231RRO_1_I8232012171.pdf",
+  "Invoice_INV178629_1697739314386.pdf":
+    "/pdf/Invoice_INV178629_1697739314386.pdf",
+  "Invoice_INV178631_1697739461140.pdf":
+    "/pdf/Invoice_INV178631_1697739461140.pdf",
+  "Trafigura VR#22289 10-20-23.pdf": "/pdf/Trafigura VR#22289 10-20-23.pdf",
+  "Trafigura VR#VR22260 10-20-23.pdf": "/pdf/Trafigura VR#VR22260 10-20-23.pdf",
+  "oil_contract.pdf": "/pdf/oil_contract.pdf",
 };
 
-// Function to get PDF URL by filename
 export const getPdfUrlByFilename = (filename: string): string => {
-  // First try exact match
   if (pdfMap[filename]) {
     return pdfMap[filename];
   }
 
-  // If no exact match, try to find a partial match
-  // This helps with PDFs that might have slightly different filenames
   const keys = Object.keys(pdfMap);
-  const matchingKey = keys.find(key => 
-    key.includes(filename) || filename.includes(key)
+  const matchingKey = keys.find(
+    (key) => key.includes(filename) || filename.includes(key)
   );
 
   if (matchingKey) {
     return pdfMap[matchingKey];
   }
 
-  // If no match is found, throw an error
   throw new Error(`PDF file "${filename}" not found`);
 };
 
-const mockResults = [
-  {
-    query: "contracts between traf and msc",
-    answer: [
-      {
-        id: "doc-001",
-        title: "Invoice - CHBSL3716644",
-        pdf_file: "CHBSL3716644.pdf",
-        date: "2023-10-03",
-        size: "3.1MB",
-        author: "Trafigura PTE LTD",
-        tags: ["invoice", "trafigura", "singapore", "msc"],
-        content: [
-          {
-            Document_Summary: "Invoice between Traf and MSC",
-            Content:
-              "038227\n1000340965\nTrafigura PTE LTD\nOcean Financial Centre...",
-            Date_Information: {
-              Created: "2023-10-03",
-              Modified: "2023-11-01",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Legal",
-              Size: "3.1MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$100M",
-          Ownership_structure: "60% / 40%",
-        },
-      },
-      {
-        id: "doc-002",
-        title: "Invoice - DOC_MV23FW007656RRO_1_I8232012170",
-        pdf_file: "DOC_MV23FW007656RRO_1_I8232012170.pdf",
-        date: "2023-10-23",
-        size: "2.5MB",
-        author: "Trafigura PTE LTD",
-        tags: ["invoice", "msc", "october", "due november"],
-        content: [
-          {
-            Document_Summary: "Invoice issued on 23/10/2023",
-            Content:
-              "Invoice\nTRAFIGURA PTE.LTD\nInvoice number\n8232012170...",
-            Date_Information: {
-              Created: "2023-10-23",
-              Modified: "2023-11-01",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Finance",
-              Size: "2.5MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$50M",
-          Ownership_structure: "70% / 30%",
-        },
-      },
-      {
-        id: "doc-003",
-        title: "Draft Crude Oil Contract",
-        pdf_file: "oil_contract.pdf",
-        date: "2023-09-10",
-        size: "4.0MB",
-        author: "ONGC",
-        tags: ["oil", "contract", "trafigura", "draft"],
-        content: [
-          {
-            Document_Summary: "Draft oil sale agreement",
-            Content: "DRAFT CRUDE OIL SALE AGREEMENT...",
-            Date_Information: {
-              Created: "2023-09-10",
-              Modified: "2023-10-05",
-            },
-            Document_Details: {
-              Type: "Contract",
-              Department: "Operations",
-              Size: "4.0MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$200M",
-          Ownership_structure: "50% / 50%",
-        },
-      },
-      {
-        id: "doc-004",
-        title: "Invoice - DOC_MV23FW008231RRO_1_I8232012171",
-        pdf_file: "DOC_MV23FW008231RRO_1_I8232012171.pdf",
-        date: "2023-10-23",
-        size: "2.6MB",
-        author: "Trafigura PTE LTD",
-        tags: ["invoice", "due november", "trafigura"],
-        content: [
-          {
-            Document_Summary: "Invoice with due date in November",
-            Content:
-              "Invoice\nTRAFIGURA PTE.LTD\nInvoice number\n8232012171...",
-            Date_Information: {
-              Created: "2023-10-23",
-              Modified: "2023-11-05",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Finance",
-              Size: "2.6MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$80M",
-          Ownership_structure: "65% / 35%",
-        },
-      },
-      {
-        id: "doc-005",
-        title: "Invoice - INV178629",
-        pdf_file: "Invoice_INV178629_1697739314386.pdf",
-        date: "2023-10-18",
-        size: "2.8MB",
-        author: "Trafigura Trading LLC",
-        tags: ["invoice", "trafigura", "houston", "november"],
-        content: [
-          {
-            Document_Summary: "Billing details for Trafigura Trading",
-            Content: "INVOICE\n1 of 2\nBill To:\nTrafigura Trading LLC...",
-            Date_Information: {
-              Created: "2023-10-18",
-              Modified: "2023-11-01",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Trading",
-              Size: "2.8MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$90M",
-          Ownership_structure: "55% / 45%",
-        },
-      },
-    ],
-  },
-  {
-    query: "contract between 23/10/2023 and 5/12/2023",
-    answer: [
-      {
-        id: "doc-006",
-        title: "Invoice - Trafigura VR22260",
-        pdf_file: "Trafigura VR#VR22260 10-20-23.pdf",
-        date: "2023-12-05",
-        size: "3.0MB",
-        author: "Trafigura",
-        tags: ["invoice", "trafigura", "december", "vr22260"],
-        content: [
-          {
-            Document_Summary: "Invoice dated 5/12/2023 for Trafigura VR22260",
-            Content:
-              "INVOICE VR22260\nINVOICE DATE: 5/12/2023\nTRAFIGURA VR# VR22260...",
-            Date_Information: {
-              Created: "2023-12-05",
-              Modified: "2023-12-06",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Shipping",
-              Size: "3.0MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$70M",
-          Ownership_structure: "60% / 40%",
-        },
-      },
-      {
-        id: "doc-002",
-        title: "Invoice - DOC_MV23FW007656RRO_1_I8232012170",
-        pdf_file: "DOC_MV23FW007656RRO_1_I8232012170.pdf",
-        date: "2023-10-23",
-        size: "2.5MB",
-        author: "Trafigura PTE LTD",
-        tags: ["invoice", "msc", "october", "due november"],
-        content: [
-          {
-            Document_Summary: "Invoice issued on 23/10/2023",
-            Content:
-              "Invoice\nTRAFIGURA PTE.LTD\nInvoice number\n8232012170...",
-            Date_Information: {
-              Created: "2023-10-23",
-              Modified: "2023-11-01",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Finance",
-              Size: "2.5MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$50M",
-          Ownership_structure: "70% / 30%",
-        },
-      },
-      {
-        id: "doc-004",
-        title: "Invoice - DOC_MV23FW008231RRO_1_I8232012171",
-        pdf_file: "DOC_MV23FW008231RRO_1_I8232012171.pdf",
-        date: "2023-10-23",
-        size: "2.6MB",
-        author: "Trafigura PTE LTD",
-        tags: ["invoice", "due november", "trafigura"],
-        content: [
-          {
-            Document_Summary: "Invoice with due date in November",
-            Content:
-              "Invoice\nTRAFIGURA PTE.LTD\nInvoice number\n8232012171...",
-            Date_Information: {
-              Created: "2023-10-23",
-              Modified: "2023-11-05",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Finance",
-              Size: "2.6MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$80M",
-          Ownership_structure: "65% / 35%",
-        },
-      },
-      {
-        id: "doc-005",
-        title: "Invoice - INV178629",
-        pdf_file: "Invoice_INV178629_1697739314386.pdf",
-        date: "2023-10-18",
-        size: "2.8MB",
-        author: "Trafigura Trading LLC",
-        tags: ["invoice", "trafigura", "houston", "november"],
-        content: [
-          {
-            Document_Summary: "Billing details for Trafigura Trading",
-            Content: "INVOICE\n1 of 2\nBill To:\nTrafigura Trading LLC...",
-            Date_Information: {
-              Created: "2023-10-18",
-              Modified: "2023-11-01",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Trading",
-              Size: "2.8MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$90M",
-          Ownership_structure: "55% / 45%",
-        },
-      },
-      {
-        id: "doc-007",
-        title: "Invoice - INV178631",
-        pdf_file: "Invoice_INV178631_1697739461140.pdf",
-        date: "2023-10-18",
-        size: "2.9MB",
-        author: "Trafigura Trading LLC",
-        tags: ["invoice", "trafigura", "houston", "november"],
-        content: [
-          {
-            Document_Summary:
-              "Billing details for Trafigura Trading - INV178631",
-            Content: "INVOICE\n1 of 2\nBill To:\nTrafigura Trading LLC...",
-            Date_Information: {
-              Created: "2023-10-18",
-              Modified: "2023-11-02",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Trading",
-              Size: "2.9MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$75M",
-          Ownership_structure: "50% / 50%",
-        },
-      },
-    ],
-  },
-  {
-    query:
-      "Show me all invoices involving Trafigura PTE LTD with shipping from Malaysia.",
-    answer: [
-      {
-        id: "doc-002",
-        title: "Invoice - DOC_MV23FW007656RRO_1_I8232012170",
-        pdf_file: "DOC_MV23FW007656RRO_1_I8232012170.pdf",
-        date: "2023-10-23",
-        size: "2.5MB",
-        author: "Trafigura PTE LTD",
-        tags: ["invoice", "msc", "malaysia", "shipping"],
-        content: [
-          {
-            Document_Summary: "Invoice showing shipping from Malaysia",
-            Content:
-              "Invoice\nTRAFIGURA PTE.LTD\nInvoice number\n8232012170...",
-            Date_Information: {
-              Created: "2023-10-23",
-              Modified: "2023-11-01",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Shipping",
-              Size: "2.5MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$50M",
-          Ownership_structure: "70% / 30%",
-        },
-      },
-      {
-        id: "doc-004",
-        title: "Invoice - DOC_MV23FW008231RRO_1_I8232012171",
-        pdf_file: "DOC_MV23FW008231RRO_1_I8232012171.pdf",
-        date: "2023-10-23",
-        size: "2.6MB",
-        author: "Trafigura PTE LTD",
-        tags: ["invoice", "malaysia", "trafigura", "shipping"],
-        content: [
-          {
-            Document_Summary: "Invoice with shipment from Malaysia",
-            Content:
-              "Invoice\nTRAFIGURA PTE.LTD\nInvoice number\n8232012171...",
-            Date_Information: {
-              Created: "2023-10-23",
-              Modified: "2023-11-05",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Logistics",
-              Size: "2.6MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$80M",
-          Ownership_structure: "65% / 35%",
-        },
-      },
-      {
-        id: "doc-001",
-        title: "Invoice - CHBSL3716644",
-        pdf_file: "CHBSL3716644.pdf",
-        date: "2023-10-03",
-        size: "3.1MB",
-        author: "Trafigura PTE LTD",
-        tags: ["invoice", "malaysia", "trafigura", "msc"],
-        content: [
-          {
-            Document_Summary:
-              "Invoice between Traf and MSC with shipment details",
-            Content:
-              "038227\n1000340965\nTrafigura PTE LTD\nOcean Financial Centre...",
-            Date_Information: {
-              Created: "2023-10-03",
-              Modified: "2023-11-01",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Legal",
-              Size: "3.1MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$100M",
-          Ownership_structure: "60% / 40%",
-        },
-      },
-      {
-        id: "doc-003",
-        title: "Draft Crude Oil Contract",
-        pdf_file: "oil_contract.pdf",
-        date: "2023-09-10",
-        size: "4.0MB",
-        author: "ONGC",
-        tags: ["contract", "malaysia", "oil", "trafigura"],
-        content: [
-          {
-            Document_Summary: "Draft crude oil sale agreement from ONGC",
-            Content: "DRAFT CRUDE OIL SALE AGREEMENT...",
-            Date_Information: {
-              Created: "2023-09-10",
-              Modified: "2023-10-05",
-            },
-            Document_Details: {
-              Type: "Contract",
-              Department: "Operations",
-              Size: "4.0MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$200M",
-          Ownership_structure: "50% / 50%",
-        },
-      },
-      {
-        id: "doc-008",
-        title: "Invoice - Trafigura VR22289",
-        pdf_file: "Trafigura VR#22289 10-20-23.pdf",
-        date: "2023-10-20",
-        size: "3.2MB",
-        author: "Trafigura",
-        tags: ["invoice", "malaysia", "trafigura", "vr22289"],
-        content: [
-          {
-            Document_Summary: "Invoice from Malaysia VR22289",
-            Content:
-              "INVOICE VR22289\nINVOICE DATE: 10/20/2023\nTRAFIGURA VR# VR22289...",
-            Date_Information: {
-              Created: "2023-10-20",
-              Modified: "2023-10-21",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Shipping",
-              Size: "3.2MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$60M",
-          Ownership_structure: "55% / 45%",
-        },
-      },
-    ],
-  },
-  {
-    query:
-      "Filter for invoices issued in October 2023 with due dates in November.",
-    answer: [
-      {
-        id: "doc-002",
-        title: "Invoice - DOC_MV23FW007656RRO_1_I8232012170",
-        pdf_file: "DOC_MV23FW007656RRO_1_I8232012170.pdf",
-        date: "2023-10-23",
-        size: "2.5MB",
-        author: "Trafigura PTE LTD",
-        tags: ["invoice", "october", "november due", "trafigura", "msc"],
-        content: [
-          {
-            Document_Summary:
-              "Invoice issued on 23/10/2023 with due date 22/11/2023",
-            Content:
-              "Invoice\nTRAFIGURA PTE.LTD\nInvoice number\n8232012170\n10 COLLYER QUAY, #29-01/05, OCEAN F \nInvoice date\n23/10/2023\n049315 SINGAPORE\nDue date\n22/11/2023",
-            Date_Information: {
-              Created: "2023-10-23",
-              Modified: "2023-11-01",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Finance",
-              Size: "2.5MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$50M",
-          Ownership_structure: "70% / 30%",
-        },
-      },
-      {
-        id: "doc-004",
-        title: "Invoice - DOC_MV23FW008231RRO_1_I8232012171",
-        pdf_file: "DOC_MV23FW008231RRO_1_I8232012171.pdf",
-        date: "2023-10-23",
-        size: "2.6MB",
-        author: "Trafigura PTE LTD",
-        tags: ["invoice", "october", "november due", "trafigura"],
-        content: [
-          {
-            Document_Summary:
-              "Invoice issued on 23/10/2023 with due date 22/11/2023",
-            Content:
-              "Invoice\nTRAFIGURA PTE.LTD\nInvoice number\n8232012171\n10 COLLYER QUAY, #29-01/05, OCEAN F \nInvoice date\n23/10/2023\n049315 SINGAPORE\nDue date\n22/11/2023",
-            Date_Information: {
-              Created: "2023-10-23",
-              Modified: "2023-11-05",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Finance",
-              Size: "2.6MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$80M",
-          Ownership_structure: "65% / 35%",
-        },
-      },
-      {
-        id: "doc-008",
-        title: "Invoice - Trafigura VR22289",
-        pdf_file: "Trafigura VR#22289 10-20-23.pdf",
-        date: "2023-10-20",
-        size: "3.2MB",
-        author: "Trafigura",
-        tags: ["invoice", "october", "november due", "trafigura"],
-        content: [
-          {
-            Document_Summary:
-              "Invoice VR22289 issued in October, due in November",
-            Content:
-              "INVOICE\nVR22289\nINVOICE DATE:\n10/20/2023\nTRAFIGURA VR#\nVR22289\nRELEASE CONTACT Kane Altwasser\nTOTAL DUE:\nMumbaiServicePayment@trafigura.com",
-            Date_Information: {
-              Created: "2023-10-20",
-              Modified: "2023-10-21",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Shipping",
-              Size: "3.2MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$60M",
-          Ownership_structure: "55% / 45%",
-        },
-      },
-      {
-        id: "doc-005",
-        title: "Invoice - INV178629",
-        pdf_file: "Invoice_INV178629_1697739314386.pdf",
-        date: "2023-10-18",
-        size: "2.8MB",
-        author: "Trafigura Trading LLC",
-        tags: ["invoice", "october", "houston", "november due"],
-        content: [
-          {
-            Document_Summary: "Invoice issued in October, payment due November",
-            Content:
-              "INVOICE \n1 of 2\nBill To:\nTrafigura Trading LLC\n845 Texas Ave\nSuite 3600\nHouston TX 77002\nRemit Payment To:\n150 West Main Street, Suite 1600\nNorfolk, VA",
-            Date_Information: {
-              Created: "2023-10-18",
-              Modified: "2023-11-01",
-            },
-            Document_Details: {
-              Type: "Invoice",
-              Department: "Trading",
-              Size: "2.8MB",
-            },
-          },
-        ],
-        Calculated_Values: {
-          Total_initial_investment: "$90M",
-          Ownership_structure: "55% / 45%",
-        },
-      },
-    ],
-  },
-];
-
-// Function to find an exact query match and return its answer documents
 const findDocumentsByExactQuery = (query: string): SearchResultItem[] => {
   console.log(`Looking for exact query match: "${query}" in mock data`);
 
-  // Convert query to lowercase for case-insensitive matching
   const normalizedQuery = query.toLowerCase();
 
-  // Find an exact query match (case-insensitive)
   const exactQueryMatch = mockResults.find(
     (item) => item.query.toLowerCase() === normalizedQuery
   );
@@ -645,13 +56,8 @@ const findDocumentsByExactQuery = (query: string): SearchResultItem[] => {
   return [];
 };
 
-// No need to flatten all documents - we only want exact query matches
-// Removing getAllDocuments function to follow new requirements
-
-// Simulated API delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Interface for search options
 interface SearchOptions {
   query: string;
   filters: {
@@ -665,7 +71,6 @@ interface SearchOptions {
   persona: string;
 }
 
-// Search documents with improved search functionality
 export const searchDocuments = async (
   query: string,
   filters: any,
@@ -673,7 +78,6 @@ export const searchDocuments = async (
 ): Promise<SearchResultItem[]> => {
   console.log("Searching with:", { query, filters, persona });
 
-  // Create search options object
   const searchOptions: SearchOptions = {
     query,
     filters: {
@@ -693,28 +97,22 @@ export const searchDocuments = async (
 
   console.log("Processed search options:", searchOptions);
 
-  // Simulate API delay
   await delay(800);
 
   return performSearch(searchOptions);
 };
 
-// Updated search implementation to match exact queries only
 const performSearch = (options: SearchOptions): SearchResultItem[] => {
   console.log(`Starting search with query: "${options.query}"`);
 
-  // If there's no query, return an empty array (no default results)
   if (!options.query || options.query.trim() === "") {
     console.log("Empty query, returning empty results");
     return [];
   }
 
-  // First, get relevant documents based on the exact query
   let results = findDocumentsByExactQuery(options.query);
 
-  // If no exact query match found, perform keyword search
   if (results.length === 0) {
-    // For each query in mockResults, check if the user's query contains it
     for (const mockResult of mockResults) {
       if (
         options.query.toLowerCase().includes(mockResult.query.toLowerCase())
@@ -728,24 +126,20 @@ const performSearch = (options: SearchOptions): SearchResultItem[] => {
 
   console.log(`Initial results before filtering: ${results.length} items`);
 
-  // Apply filters to the results
   results = applyFilters(results, options);
 
   console.log(`Final result count: ${results.length}`);
   return results;
 };
 
-// Function to apply filters to results
 const applyFilters = (
   results: SearchResultItem[],
   options: SearchOptions
 ): SearchResultItem[] => {
   let filteredResults = [...results];
 
-  // Filter by document type (if specific types are selected)
   if (options.filters.documentType?.length > 0) {
     filteredResults = filteredResults.filter((item) => {
-      // Get document type from either the direct property or from content
       const docType =
         item.type ||
         (item.content &&
@@ -761,7 +155,6 @@ const applyFilters = (
   // Filter by department
   if (options.filters.department?.length > 0) {
     filteredResults = filteredResults.filter((item) => {
-      // Get department from either direct property or from content
       const department =
         item.department ||
         (item.content && item.content[0]?.Document_Details?.Department);
@@ -800,7 +193,6 @@ const applyFilters = (
   // Filter by file size
   if (options.filters.fileSize?.length > 0) {
     filteredResults = filteredResults.filter((item) => {
-      // Get file size from either direct property or from content
       const fileSizeString =
         item.fileSize ||
         item.size ||
@@ -808,7 +200,6 @@ const applyFilters = (
 
       if (!fileSizeString) return false;
 
-      // Try to extract the size value (assume format like "3.1MB")
       const sizeMatch = fileSizeString.match(/(\d+\.?\d*)/);
       if (!sizeMatch) return false;
 
@@ -832,9 +223,7 @@ const applyFilters = (
     console.log(`After file size filter: ${filteredResults.length} results`);
   }
 
-  // Filter by persona (only if not 'all')
   if (options.persona !== "all") {
-    // Convert persona to department name format
     const personaToDeptMap: Record<string, string[]> = {
       trading: ["Trading"],
       legal: ["Legal"],

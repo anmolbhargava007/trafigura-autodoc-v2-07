@@ -1,16 +1,16 @@
-
-import React, { useState } from 'react';
-import { 
-  File, 
-  FileText, 
-  FileClock, 
-  FileCheck, 
-  ExternalLink, 
-  Download, 
-  ChevronDown, 
-  ChevronUp, 
+import React, { useState, useEffect } from 'react';
+import {
+  File,
+  FileText,
+  FileClock,
+  FileCheck,
+  ExternalLink,
+  Download,
+  ChevronDown,
+  ChevronUp,
   Calendar,
-  Calculator
+  Calculator,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -89,13 +89,25 @@ const formatDate = (dateString: string) => {
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 };
 
-const SearchResults: React.FC<SearchResultsProps> = ({ 
-  results, 
+const SearchResults: React.FC<SearchResultsProps> = ({
+  results,
   loading,
   searchPerformed,
   query
 }) => {
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+  const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
+  const [suggestedFilters, setSuggestedFilters] = useState<string[]>([]);
+  const [localTags, setLocalTags] = useState<Record<string, string[]>>({});
+
+  useEffect(() => {
+    // Initialize local tags state with the tags from results
+    const initialTags = results.reduce((acc, result) => {
+      acc[result.id] = result.tags;
+      return acc;
+    }, {} as Record<string, string[]>);
+    setLocalTags(initialTags);
+  }, [results]);
 
   const toggleItemExpansion = (id: string) => {
     setExpandedItems(prev => ({
@@ -107,27 +119,18 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   const handleDownload = (item: SearchResultItem) => {
     if (item.pdf_file) {
       try {
-        // Get the PDF URL from the api service
         const pdfUrl = getPdfUrlByFilename(item.pdf_file);
-        
-        // Create a blob from the PDF URL and download it
         fetch(pdfUrl)
           .then(response => response.blob())
           .then(blob => {
-            // Create a blob URL for the file
             const blobUrl = window.URL.createObjectURL(blob);
-            
-            // Create a link element to trigger the download
             const link = document.createElement('a');
             link.href = blobUrl;
             link.download = item.pdf_file;
             document.body.appendChild(link);
             link.click();
-            
-            // Clean up
             document.body.removeChild(link);
             window.URL.revokeObjectURL(blobUrl);
-            
             toast({
               title: "Download started",
               description: `Downloading ${item.title}`,
@@ -164,10 +167,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   const handleOpenDocument = (item: SearchResultItem) => {
     if (item.pdf_file) {
       try {
-        // Get the PDF URL from the api service
         const pdfUrl = getPdfUrlByFilename(item.pdf_file);
-        
-        // Open the PDF in a new tab
         window.open(pdfUrl, '_blank');
       } catch (error) {
         toast({
@@ -186,6 +186,23 @@ const SearchResults: React.FC<SearchResultsProps> = ({
       });
     }
   };
+
+  const handleRemoveTag = (tag: string, resultId: string) => {
+    setLocalTags(prevTags => ({
+      ...prevTags,
+      [resultId]: prevTags[resultId].filter(t => t !== tag)
+    }));
+  };
+
+  const handleApplyFilter = (filter: string) => {
+    setAppliedFilters(prevFilters => [...prevFilters, filter]);
+  };
+
+  useEffect(() => {
+    // Suggest filters based on common fields detected in the document set
+    const commonFields = ['VAT', 'refund', 'claimable', 'invoice', 'tax'];
+    setSuggestedFilters(commonFields);
+  }, []);
 
   if (loading) {
     return (
@@ -217,35 +234,33 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   return (
     <div className="w-full max-w-3xl mx-auto mt-6 font-poppins">
       <p className="text-sm text-gray-500 mb-4">{results.length} results found {query && `for "${query}"`}</p>
-      
+
       <div className="space-y-4">
         {results.map((result) => {
-          // Extract document details from new format if available
-          const documentType = result.type || 
-            (result.content && result.content[0]?.Document_Details?.Type?.toLowerCase()) || 
+          const documentType = result.type ||
+            (result.content && result.content[0]?.Document_Details?.Type?.toLowerCase()) ||
             'file';
-          
-          const department = result.department || 
-            (result.content && result.content[0]?.Document_Details?.Department) || 
+
+          const department = result.department ||
+            (result.content && result.content[0]?.Document_Details?.Department) ||
             '';
-          
-          const fileSize = result.fileSize || result.size || 
-            (result.content && result.content[0]?.Document_Details?.Size) || 
+
+          const fileSize = result.fileSize || result.size ||
+            (result.content && result.content[0]?.Document_Details?.Size) ||
             '';
-          
-          const summary = result.summary || 
-            (result.content && result.content[0]?.Document_Summary) || 
+
+          const summary = result.summary ||
+            (result.content && result.content[0]?.Document_Summary) ||
             '';
-          
-          const contentPreview = result.contentPreview || 
-            (result.content && result.content[0]?.Content) || 
+
+          const contentPreview = result.contentPreview ||
+            (result.content && result.content[0]?.Content) ||
             '';
-          
-          const lastModified = result.lastModified || 
-            (result.content && result.content[0]?.Date_Information?.Modified) || 
+
+          const lastModified = result.lastModified ||
+            (result.content && result.content[0]?.Date_Information?.Modified) ||
             '';
-          
-          // Prepare calculations from new format if available
+
           let calculations = [];
           if (result.calculations) {
             calculations = result.calculations;
@@ -257,13 +272,12 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             }));
           }
 
-          // Generate excerpt if not available
-          const excerpt = result.excerpt || summary || 
-            `${documentType.charAt(0).toUpperCase() + documentType.slice(1)} related to ${result.tags.join(', ')}`;
-          
+          const excerpt = result.excerpt || summary ||
+            `${documentType.charAt(0).toUpperCase() + documentType.slice(1)} related to ${localTags[result.id]?.join(', ')}`;
+
           return (
-            <div 
-              key={result.id} 
+            <div
+              key={result.id}
               className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-all duration-200 animate-fade-in bg-white"
             >
               <div className="flex items-start gap-3">
@@ -281,9 +295,9 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                       </Badge>
                     )}
                   </div>
-                  
+
                   <p className="text-sm text-gray-600 mb-3">{excerpt}</p>
-                  
+
                   <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mb-3">
                     <Badge variant="secondary" className="capitalize">
                       {documentType}
@@ -309,34 +323,37 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                       </>
                     )}
                   </div>
-                  
+
                   <div className="flex flex-wrap gap-1 mb-3">
-                    {result.tags.map((tag) => (
+                    {localTags[result.id]?.map((tag) => (
                       <Badge key={tag} variant="outline" className="text-xs bg-gray-50">
                         {tag}
+                        <button onClick={() => handleRemoveTag(tag, result.id)} className="ml-1">
+                          <X className="h-3 w-3" />
+                        </button>
                       </Badge>
                     ))}
                   </div>
-                  
-                  <Collapsible 
-                    open={expandedItems[result.id]} 
+
+                  <Collapsible
+                    open={expandedItems[result.id]}
                     onOpenChange={() => toggleItemExpansion(result.id)}
                     className="mt-2"
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="text-xs rounded-full hover:bg-blue-50 hover:text-blue-600 transition-colors"
                           onClick={() => handleDownload(result)}
                         >
-                          <Download className="h-3 w-3 mr-1" /> 
+                          <Download className="h-3 w-3 mr-1" />
                           Download
                         </Button>
-                        
-                        <Button 
-                          size="sm" 
+
+                        <Button
+                          size="sm"
                           className="text-xs bg-trafigura-dark-blue hover:bg-trafigura-dark-blue/90 rounded-full"
                           onClick={() => handleOpenDocument(result)}
                         >
@@ -344,7 +361,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                           Open
                         </Button>
                       </div>
-                      
+
                       <CollapsibleTrigger asChild>
                         <Button variant="ghost" size="sm" className="p-0 h-8 px-2 hover:bg-blue-50 hover:text-blue-600">
                           <span className="mr-1 text-xs">
@@ -358,10 +375,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                         </Button>
                       </CollapsibleTrigger>
                     </div>
-                    
+
                     <CollapsibleContent>
                       <Separator className="my-3" />
-                      
+
                       {summary && (
                         <div className="mb-4">
                           <h4 className="font-medium text-sm mb-1">Document Summary</h4>
@@ -370,7 +387,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                           </p>
                         </div>
                       )}
-                      
+
                       {calculations && calculations.length > 0 && (
                         <div className="mb-4">
                           <h4 className="font-medium text-sm mb-1 flex items-center">
@@ -386,7 +403,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                           </div>
                         </div>
                       )}
-                      
+
                       {contentPreview && (
                         <div className="mb-4">
                           <h4 className="font-medium text-sm mb-1">Content Preview</h4>
@@ -395,7 +412,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                           </div>
                         </div>
                       )}
-                      
+
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <h4 className="font-medium text-sm mb-1 flex items-center">
@@ -414,7 +431,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                             </div>
                           </div>
                         </div>
-                        
+
                         <div>
                           <h4 className="font-medium text-sm mb-1">Document Details</h4>
                           <div className="bg-gray-50 p-3 rounded-md">
@@ -444,6 +461,23 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             </div>
           );
         })}
+      </div>
+
+      <div className="mt-6">
+        <h4 className="font-medium text-sm mb-2">Suggested Filters</h4>
+        <div className="flex flex-wrap gap-2">
+          {suggestedFilters.map((filter) => (
+            <Button
+              key={filter}
+              variant="outline"
+              size="sm"
+              className="text-xs rounded-full hover:bg-blue-50 hover:text-blue-600 transition-colors"
+              onClick={() => handleApplyFilter(filter)}
+            >
+              {filter}
+            </Button>
+          ))}
+        </div>
       </div>
     </div>
   );

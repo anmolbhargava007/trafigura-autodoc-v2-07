@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  autodoc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: autodoc-ui:latest
+    container_name: autodoc-ui
+    ports:
+      - "9696:9696"
+    restart: unless-stopped
